@@ -1,60 +1,40 @@
 package com.yaslebid.AvroToBigQuery.services;
 
-import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
-import com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication;
 import com.yaslebid.AvroToBigQuery.config.BigQueryConfiguration;
-import com.yaslebid.AvroToBigQuery.util.AvroToBigQueryDataLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.yaslebid.AvroToBigQuery.util.FileToBigQueryLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-@EnableScheduling
+import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
+
+@Service
 public class AvroToBigQueryJobProcessor {
 
-    static final Logger logger =
-            LoggerFactory.getLogger(AvroToBigQueryApplication.class);
-
     @Autowired
-    AvroToBigQueryDataLoader avroLoader;
+    FileToBigQueryLoader avroLoader;
 
-    @Bean
-    @Scheduled(fixedRate = 5000)
-    public void run() {
-        String blobName;
+    public void execute(String fileName) {
         boolean loadResultTable1;
         boolean loadResultTable2;
-        Page<Blob> blobs = BigQueryConfiguration.BUCKET.list();
-
-        for (Blob blob : blobs.iterateAll()) {
-            blobName = blob.getName();
-            if (blobName.endsWith(".avro")) {
-                loadResultTable1 = avroLoader.loadData(blobName, BigQueryConfiguration.TABLE_CLIENT);
-                loadResultTable2 = avroLoader.loadData(blobName, BigQueryConfiguration.TABLE_CLIENT_MANDATORY);
-                renameObject(blob, loadResultTable1 && loadResultTable2);
-            }
+        if (fileName.endsWith(".avro")) {
+            loadResultTable1 = avroLoader.loadData(fileName, BigQueryConfiguration.TABLE_CLIENT);
+            loadResultTable2 = avroLoader.loadData(fileName, BigQueryConfiguration.TABLE_CLIENT_MANDATORY);
+            renameObject(BigQueryConfiguration.BUCKET.get(fileName), loadResultTable1 && loadResultTable2);
         }
     }
 
     private void renameObject(Blob sourceBlob, boolean isSuccess) {
         CopyWriter copyWriter;
+        Blob copiedBlob;
 
         if (isSuccess) {
             copyWriter = sourceBlob.copyTo(BigQueryConfiguration.BUCKET_NAME, sourceBlob.getName().concat(".processed"));
-            Blob copiedBlob = copyWriter.getResult();
-            sourceBlob.delete();
-            logger.info("Renamed object: " + sourceBlob.getName() + " to: " + copiedBlob.getName());
         } else {
             copyWriter = sourceBlob.copyTo(BigQueryConfiguration.BUCKET_NAME, sourceBlob.getName().concat(".failed"));
-            Blob copiedBlob = copyWriter.getResult();
-            sourceBlob.delete();
-            logger.info("Renamed object: " + sourceBlob.getName() + " to: " + copiedBlob.getName());
         }
-
+        copiedBlob = copyWriter.getResult();
+        sourceBlob.delete();
+        LOGGER.info("Renamed object: '" + sourceBlob.getName() + "' to: '" + copiedBlob.getName() + "'");
     }
 }

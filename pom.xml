@@ -17,6 +17,7 @@
 	<properties>
 		<java.version>11</java.version>
 		<spring-cloud.version>Hoxton.SR9</spring-cloud.version>
+		<spring-cloud-gcp.version>1.2.5.RELEASE</spring-cloud-gcp.version>
 	</properties>
 
 	<dependencies>
@@ -58,6 +59,17 @@
 			<artifactId>google-cloud-bigquery</artifactId>
 			<version>1.124.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-gcp-starter-pubsub</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.integration</groupId>
+			<artifactId>spring-integration-core</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
@@ -66,6 +78,14 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-gcp-dependencies</artifactId>
+				<version>${spring-cloud-gcp.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
