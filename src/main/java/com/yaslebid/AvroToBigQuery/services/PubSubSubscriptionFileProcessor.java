@@ -17,7 +17,6 @@ public class PubSubSubscriptionFileProcessor {
     @Autowired
     AvroToBigQueryJobProcessor avroProcessor;
 
-    @Bean
     public void subscribeAndProcess() {
         Subscriber subscriber = pubSubTemplate.subscribe(BigQueryConfiguration.SUBSCRIPTION_NAME, (message) -> {
 
