@@ -4,7 +4,7 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
-public class BigQueryConfiguration {
+public class GCPResources {
 
     public static final String PROJECT_ID = "avroparserapplication";
 
@@ -16,7 +16,5 @@ public class BigQueryConfiguration {
     public static final String BUCKET_NAME = "yl_avro_bucket";
     public static final String BUCKET_ID = "gs://".concat(BUCKET_NAME + "/");
     public static final Bucket BUCKET = STORAGE.get(BUCKET_NAME);
-
-    public static final String SUBSCRIPTION_NAME = "projects/avroparserapplication/subscriptions/avroParserSubscription";
 
 }
