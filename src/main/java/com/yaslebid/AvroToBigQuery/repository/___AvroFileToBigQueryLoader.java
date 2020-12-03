@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
 
 @Component
-public class AvroFileToBigQueryLoader implements FileToBigQueryLoader {
+public class ___AvroFileToBigQueryLoader implements ___FileToBigQueryLoader {
 
     @Autowired
     BigQuery bigQuery;

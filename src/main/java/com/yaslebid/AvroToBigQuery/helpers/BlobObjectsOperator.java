@@ -15,11 +15,10 @@ public class BlobObjectsOperator implements GCPObjectsOperator {
         Blob sourceBlob = GCPResources.BUCKET.get(fileName);
 
         try {
-            if (isSuccess) {
-                copyWriter = sourceBlob.copyTo(GCPResources.BUCKET_NAME, sourceBlob.getName().concat(".processed"));
-            } else {
-                copyWriter = sourceBlob.copyTo(GCPResources.BUCKET_NAME, sourceBlob.getName().concat(".failed"));
-            }
+            String fileExtension = isSuccess ? ".processed" : ".failed";
+            String targetBlob = sourceBlob.getName().concat(fileExtension);
+            copyWriter = sourceBlob.copyTo(GCPResources.BUCKET_NAME, targetBlob);
+
             copiedBlob = copyWriter.getResult();
             sourceBlob.delete();
             LOGGER.info("Renamed object: '" + sourceBlob.getName() + "' to: '" + copiedBlob.getName() + "'");

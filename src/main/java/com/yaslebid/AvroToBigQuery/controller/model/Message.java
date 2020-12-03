@@ -14,14 +14,6 @@ public class Message {
         this.data = data;
     }
 
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public String getPublishTime() {
-        return publishTime;
-    }
-
     public String getData() {
         return data;
     }

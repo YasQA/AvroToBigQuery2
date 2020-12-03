@@ -20,8 +20,12 @@ import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
 @RestController
 public class WebController {
 
+    private final FileToBigQueryJobProcessor fileToBigQueryJobProcessor;
+
     @Autowired
-    FileToBigQueryJobProcessor fileToBigQueryJobProcessor;
+    public WebController(FileToBigQueryJobProcessor fileToBigQueryJobProcessor) {
+        this.fileToBigQueryJobProcessor = fileToBigQueryJobProcessor;
+    }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<String> receiveMessage(@RequestBody Body body) {

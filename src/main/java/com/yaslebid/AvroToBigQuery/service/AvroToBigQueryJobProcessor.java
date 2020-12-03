@@ -1,32 +1,43 @@
 package com.yaslebid.AvroToBigQuery.service;
 
-import com.yaslebid.AvroToBigQuery.config.GCPResources;
+import com.yaslebid.AvroToBigQuery.helpers.FileDeserializerForClient;
 import com.yaslebid.AvroToBigQuery.helpers.GCPObjectsOperator;
-import com.yaslebid.AvroToBigQuery.repository.FileToBigQueryLoader;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.yaslebid.AvroToBigQuery.repository.DBDataOperator;
+import com.yaslebid.avro.Client;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class AvroToBigQueryJobProcessor implements FileToBigQueryJobProcessor {
 
-    @Autowired
-    FileToBigQueryLoader fileToBigQueryLoader;
+    private final FileDeserializerForClient avroFileDeserializer;
+    private final DBDataOperator bigQueryDataOperator;
+    private final GCPObjectsOperator blobObjectsOperator;
 
-    @Autowired
-    GCPObjectsOperator gcpObjectsOperator;
+    public AvroToBigQueryJobProcessor(FileDeserializerForClient avroFileDeserializer,
+                                      DBDataOperator bigQueryDataOperator, GCPObjectsOperator blobObjectsOperator) {
+        this.avroFileDeserializer = avroFileDeserializer;
+        this.bigQueryDataOperator = bigQueryDataOperator;
+        this.blobObjectsOperator = blobObjectsOperator;
+    }
 
     public boolean executeTasks(String fileName) {
-        boolean importResultTable1;
-        boolean importResultTable2;
-        boolean importResultSummary;
+        boolean insertResultAllFields = false;
+        boolean insertResultMandatoryFields = false;
+        boolean insertResultSummary;
+        List<Client> clientList;
 
-        importResultTable1 = fileToBigQueryLoader.loadDataToTable(fileName, GCPResources.TABLE_CLIENT);
-        importResultTable2 = fileToBigQueryLoader.loadDataToTable(fileName, GCPResources.TABLE_CLIENT_MANDATORY);
-        importResultSummary = importResultTable1 && importResultTable2;
+        clientList = avroFileDeserializer.getClientListFromFile(fileName);
 
-        gcpObjectsOperator.renameBlobObject(fileName, importResultSummary);
+        for (Client client : clientList) {
+            insertResultAllFields = bigQueryDataOperator.insertRow(client, false);
+            insertResultMandatoryFields = bigQueryDataOperator.insertRow(client, true);
+        }
 
-        return importResultSummary;
+        insertResultSummary = insertResultAllFields && insertResultMandatoryFields;
+        blobObjectsOperator.renameBlobObject(fileName, insertResultSummary);
+
+        return insertResultSummary;
     }
 
 }

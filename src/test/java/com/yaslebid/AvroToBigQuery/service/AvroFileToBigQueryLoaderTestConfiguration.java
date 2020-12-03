@@ -1,6 +1,6 @@
 package com.yaslebid.AvroToBigQuery.service;
 
-import com.yaslebid.AvroToBigQuery.repository.AvroFileToBigQueryLoader;
+import com.yaslebid.AvroToBigQuery.repository.___AvroFileToBigQueryLoader;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Profile;
 public class AvroFileToBigQueryLoaderTestConfiguration {
     @Bean
     @Primary
-    public AvroFileToBigQueryLoader nameService() {
-        return Mockito.mock(AvroFileToBigQueryLoader.class);
+    public ___AvroFileToBigQueryLoader nameService() {
+        return Mockito.mock(___AvroFileToBigQueryLoader.class);
     }
 }
 
