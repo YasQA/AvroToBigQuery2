@@ -7,20 +7,19 @@ import java.util.*;
 import com.google.cloud.bigquery.BigQuery;
 import com.yaslebid.AvroToBigQuery.config.GCPResources;
 import com.yaslebid.avro.Client;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
+//import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
 
 @Component
+@AllArgsConstructor
+@Slf4j
 public class BigQueryDataOperator implements DBDataOperator {
 
     private final BigQuery bigQuery;
-
-    @Autowired
-    public BigQueryDataOperator(BigQuery bigQuery) {
-        this.bigQuery = bigQuery;
-    }
 
     public boolean insertRow(Client client, boolean isMandatoryFieldsTable) {
         String tableName = isMandatoryFieldsTable ? GCPResources.TABLE_CLIENT_MANDATORY : GCPResources.TABLE_CLIENT;
@@ -41,15 +40,15 @@ public class BigQueryDataOperator implements DBDataOperator {
 
             if (response.hasErrors()) {
                 for (Map.Entry<Long, List<BigQueryError>> entry : response.getInsertErrors().entrySet()) {
-                    LOGGER.error("Response errors:" + entry.getValue().toString());
+                    log.error("Response errors:" + entry.getValue().toString());
                 }
                 return false;
             }
-            LOGGER.info("Row inserted into '" + tableName + "' table");
+            log.info("Row inserted into '" + tableName + "' table");
             return true;
 
         } catch (BigQueryException exception) {
-            LOGGER.error("Insert operation not performed \n" + exception.toString());
+            log.error("Insert operation not performed \n" + exception.getMessage());
             return false;
         }
     }

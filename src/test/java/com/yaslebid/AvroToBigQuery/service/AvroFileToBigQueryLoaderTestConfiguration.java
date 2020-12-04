@@ -1,6 +1,5 @@
 package com.yaslebid.AvroToBigQuery.service;
 
-import com.yaslebid.AvroToBigQuery.repository.___AvroFileToBigQueryLoader;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

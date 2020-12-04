@@ -2,7 +2,6 @@ package com.yaslebid.AvroToBigQuery.service;
 
 import com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication;
 import com.yaslebid.AvroToBigQuery.config.GCPResources;
-import com.yaslebid.AvroToBigQuery.repository.___FileToBigQueryLoader;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 import org.junit.runner.RunWith;

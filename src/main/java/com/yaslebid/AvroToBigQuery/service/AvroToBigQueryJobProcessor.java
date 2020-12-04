@@ -4,22 +4,19 @@ import com.yaslebid.AvroToBigQuery.helpers.FileDeserializerForClient;
 import com.yaslebid.AvroToBigQuery.helpers.GCPObjectsOperator;
 import com.yaslebid.AvroToBigQuery.repository.DBDataOperator;
 import com.yaslebid.avro.Client;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class AvroToBigQueryJobProcessor implements FileToBigQueryJobProcessor {
 
     private final FileDeserializerForClient avroFileDeserializer;
     private final DBDataOperator bigQueryDataOperator;
     private final GCPObjectsOperator blobObjectsOperator;
-
-    public AvroToBigQueryJobProcessor(FileDeserializerForClient avroFileDeserializer,
-                                      DBDataOperator bigQueryDataOperator, GCPObjectsOperator blobObjectsOperator) {
-        this.avroFileDeserializer = avroFileDeserializer;
-        this.bigQueryDataOperator = bigQueryDataOperator;
-        this.blobObjectsOperator = blobObjectsOperator;
-    }
 
     public boolean executeTasks(String fileName) {
         boolean insertResultAllFields = false;
@@ -36,7 +33,6 @@ public class AvroToBigQueryJobProcessor implements FileToBigQueryJobProcessor {
 
         insertResultSummary = insertResultAllFields && insertResultMandatoryFields;
         blobObjectsOperator.renameBlobObject(fileName, insertResultSummary);
-
         return insertResultSummary;
     }
 
