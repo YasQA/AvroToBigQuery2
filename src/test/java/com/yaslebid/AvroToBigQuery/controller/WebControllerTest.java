@@ -7,15 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.StreamingHttpOutputMessage;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,8 +26,8 @@ class WebControllerTest {
     private MockMvc mvc;
 
     @Test
-    void getFileNameFromPubSubMessage() throws Exception {
-        // not converted 'data' is: {"name": "testFileX.avro", "bucket": "pubSubBucket"}
+    public void getFileNameFromPubSubMessage() throws Exception {
+        // not converted to base64 'data' is: {"name": "testFileX.avro", "bucket": "pubSubBucket"}
         String pubSubTestMessage = "{\n" +
                 "    \"message\": {\n" +
                 "        \"attributes\": {\n" +
@@ -54,8 +50,8 @@ class WebControllerTest {
     }
 
     @Test
-    void getFileNameFromPubSubMessage_fileNameEmpty_negativeTest() throws Exception {
-        // not converted 'data' is: {"name": "", "bucket": "pubSubBucket"}
+    public void getFileNameFromPubSubMessage_fileNameEmpty_negativeTest() throws Exception {
+        // not converted  to base64 'data' is: {"name": "", "bucket": "pubSubBucket"}
         String pubSubTestMessage = "{\n" +
                 "    \"message\": {\n" +
                 "        \"attributes\": {\n" +
@@ -78,7 +74,7 @@ class WebControllerTest {
     }
 
     @Test
-    void getFileNameFromPubSubMessage_wrongFormat_negativeTest() throws Exception {
+    public void getFileNameFromPubSubMessage_wrongFormat_negativeTest() throws Exception {
         String pubSubTestMessage = "{\n" +
                 "   \"subscription\": \"projects/avroparserapplication/subscriptions/pubSubSubscription\"\n" +
                 "}";
@@ -92,5 +88,7 @@ class WebControllerTest {
         String content = result.getResponse().getContentAsString();
         Assert.assertEquals("Bad Request: Invalid PubSub message format", content);
     }
+
+
 }
 

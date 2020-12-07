@@ -3,8 +3,14 @@ package com.yaslebid.AvroToBigQuery.controller;
 import java.util.Base64;
 import com.yaslebid.AvroToBigQuery.controller.model.Body;
 import com.yaslebid.AvroToBigQuery.controller.model.Message;
+import com.yaslebid.AvroToBigQuery.helpers.GCPObjectsOperator;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BigQueryRowInsertException;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BlobNotExistsException;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BlobRenameException;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.IncorrectAvroFileException;
 import com.yaslebid.AvroToBigQuery.service.FileToBigQueryJobProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,26 +21,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
-
 @RestController
+@AllArgsConstructor
+@Slf4j
 public class WebController {
 
-    @Autowired
-    FileToBigQueryJobProcessor fileToBigQueryJobProcessor;
+    private final FileToBigQueryJobProcessor fileToBigQueryJobProcessor;
+    private final GCPObjectsOperator blobObjectsOperator;
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public ResponseEntity<String> receiveMessage(@RequestBody Body body) {
         String decodedPubSubMessage;
-        String fileName;
+        String fileName = "";
         JsonObject data;
         Message message;
+        boolean isSuccess = false;
 
         // Check if PubSub message not empty
         message = body.getMessage();
         if (message == null) {
             String msg = "Bad Request: Invalid PubSub message format";
-            LOGGER.error(msg);
+            log.error(msg);
             return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
         }
 
@@ -43,18 +50,26 @@ public class WebController {
             decodedPubSubMessage = new String(Base64.getDecoder().decode(message.getData()));
             data = JsonParser.parseString(decodedPubSubMessage).getAsJsonObject();
             fileName = data.get("name").getAsString();
-            LOGGER.info("PubSub message received. File '" + fileName + "' uploaded to the bucket");
-        } catch (Exception e) {
+            log.info("PubSub message received. File '" + fileName + "' uploaded to the bucket");
+        } catch (Exception exception) {
             String msg = "Bad Request: Invalid PubSub message: data is not valid base64 encoded JSON or incorrect";
-            LOGGER.error(msg);
+            log.error(msg, exception.getMessage());
             return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
         }
 
         if (fileName.endsWith(".avro")) {
-            fileToBigQueryJobProcessor.executeTasks(fileName);
+            try {
+                isSuccess = fileToBigQueryJobProcessor.executeTasks(fileName);
+            } catch (IncorrectAvroFileException | BigQueryRowInsertException exception) {
+                log.error("WC exception message: " + exception.getMessage());
+                blobObjectsOperator.renameBlobObject(fileName, false);
+            } catch (BlobNotExistsException | BlobRenameException exception) {
+                log.error("WC exception message: " + exception.getMessage());
+            }
         }
 
-        return new ResponseEntity<>(fileName, HttpStatus.OK);
-    }
+        return isSuccess ? new ResponseEntity<>(fileName, HttpStatus.OK)    // file processed
+                : new ResponseEntity<>(fileName, HttpStatus.NO_CONTENT);    // if file not .avro or failed to process
 
+    }
 }

@@ -1,28 +1,14 @@
 package com.yaslebid.AvroToBigQuery.controller.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
 
-    private String messageId;
-    private String publishTime;
+    @Getter
     private String data;
 
-    public Message() {}
-
-    public Message(String messageId, String publishTime, String data) {
-        this.messageId = messageId;
-        this.publishTime = publishTime;
-        this.data = data;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public String getPublishTime() {
-        return publishTime;
-    }
-
-    public String getData() {
-        return data;
-    }
 }

@@ -1,13 +1,10 @@
 package com.yaslebid.AvroToBigQuery.controller.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class Body {
-
+    @Getter
     private Message message;
-
-    public Body() {}
-
-    public Message getMessage() {
-        return message;
-    }
-
 }
