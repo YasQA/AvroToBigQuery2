@@ -10,3 +10,5 @@ Service listen for Push PubSub notifications for new *.avro files appearing in s
 - import data(if it corresponds to schema) from avro files into 2 tables: ALL columns and only MUST columns
 - if data from file imported successfully file renamed to *.avro.imported
 - if data from file imported successfully file renamed to *.avro.failed
+
+'resources' folder contains diagram of the solution (data flow) that shows how different GCP services communicate and their configuration.
