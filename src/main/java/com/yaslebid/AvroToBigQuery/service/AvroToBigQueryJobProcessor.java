@@ -33,7 +33,7 @@ public class AvroToBigQueryJobProcessor implements FileToBigQueryJobProcessor {
 
         insertResultSummary = insertResultAllFields && insertResultMandatoryFields;
         blobObjectsOperator.renameBlobObject(fileName, insertResultSummary);
+
         return insertResultSummary;
     }
-
 }

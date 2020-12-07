@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import com.google.cloud.storage.Blob;
 import com.yaslebid.AvroToBigQuery.config.GCPResources;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BlobNotExistsException;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.IncorrectAvroFileException;
 import com.yaslebid.avro.Client;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.file.DataFileReader;
@@ -22,7 +24,6 @@ public class AvroFileDeserializerForClient implements FileDeserializerForClient 
 
         try {
             Blob sourceBlob = GCPResources.BUCKET.get(fileName);
-
             SeekableByteArrayInput input = new SeekableByteArrayInput(sourceBlob.getContent());
             DatumReader<Client> datumReader = new SpecificDatumReader<>(Client.class);
             DataFileReader<Client> dataFileReader = new DataFileReader<>(input, datumReader);
@@ -31,9 +32,15 @@ public class AvroFileDeserializerForClient implements FileDeserializerForClient 
                 Client client = dataFileReader.next();
                 clientsList.add(client);
             }
-        } catch (IOException | NullPointerException exception) {
-            log.error("File/Blob '" + fileName + "' not found or it is not correct Avro file. Error message: " + exception.getMessage());
+            log.info("File '" + fileName + "' processed, list of Clients collected");
+        } catch (IOException exception) {
+            log.error("File/Blob '" + fileName + "' is not correct Avro file. Error message: " + exception.getMessage());
+            throw new IncorrectAvroFileException(fileName, exception);
+        } catch (NullPointerException exception) {
+            log.error("File/Blob is not available. Error message: " + exception.getMessage());
+            throw new BlobNotExistsException(fileName, exception);
         }
+
         return clientsList;
     }
 }

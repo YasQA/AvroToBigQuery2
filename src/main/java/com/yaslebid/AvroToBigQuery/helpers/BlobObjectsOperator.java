@@ -2,7 +2,9 @@ package com.yaslebid.AvroToBigQuery.helpers;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.CopyWriter;
+import com.google.cloud.storage.StorageException;
 import com.yaslebid.AvroToBigQuery.config.GCPResources;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BlobRenameException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +26,8 @@ public class BlobObjectsOperator implements GCPObjectsOperator {
             log.info("Renamed object: '" + sourceBlob.getName() + "' to: '" + copiedBlob.getName() + "'");
             return true;
         } catch (Exception exception) {
-            log.error("Blob not exist in the bucket and cannot be renamed");
-            return false;
+            log.error("Failed to rename blob: " + fileName, exception.getMessage());
+            throw new BlobRenameException(fileName, exception);
         }
     }
 }

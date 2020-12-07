@@ -1,0 +1,3 @@
+{"id":1, "name":"John", "phone": {"string": "111-111-1111"}, "address": {"string": "NY, Street 1, 111"}}
+
+{"id":2, "name":"Jim", "phone": {"string": "222-222-222"}, "address": {"string": "London, Street 2, 2222"}}

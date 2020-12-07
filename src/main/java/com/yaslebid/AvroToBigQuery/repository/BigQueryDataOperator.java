@@ -2,17 +2,17 @@ package com.yaslebid.AvroToBigQuery.repository;
 
 import com.google.cloud.bigquery.*;
 
-import java.util.*;
-
 import com.google.cloud.bigquery.BigQuery;
 import com.yaslebid.AvroToBigQuery.config.GCPResources;
+import com.yaslebid.AvroToBigQuery.helpers.exceptions.BigQueryRowInsertException;
 import com.yaslebid.avro.Client;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-//import static com.yaslebid.AvroToBigQuery.AvroToBigQueryApplication.LOGGER;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @AllArgsConstructor
@@ -48,9 +48,8 @@ public class BigQueryDataOperator implements DBDataOperator {
             return true;
 
         } catch (BigQueryException exception) {
-            log.error("Insert operation not performed \n" + exception.getMessage());
-            return false;
+            log.error("Insert operation not performed: " + exception.getMessage());
+            throw new BigQueryRowInsertException(client, exception);
         }
     }
-
 }
