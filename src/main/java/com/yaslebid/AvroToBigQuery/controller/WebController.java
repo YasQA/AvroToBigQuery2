@@ -68,8 +68,9 @@ public class WebController {
             }
         }
 
-        return isSuccess ? new ResponseEntity<>(fileName, HttpStatus.OK)    // file processed
-                : new ResponseEntity<>(fileName, HttpStatus.NO_CONTENT);    // if file not .avro or failed to process
+        // OK when file processed, NO_CONTENT if file not .avro or failed to be processed
+        return isSuccess ? new ResponseEntity<>(fileName, HttpStatus.OK)
+                : new ResponseEntity<>(fileName, HttpStatus.NO_CONTENT);
 
     }
 }

@@ -17,11 +17,9 @@ class BlobNotExistsExceptionTest {
     private FileToBigQueryJobProcessor avroToBigQueryJobProcessor;
 
     @Test
-    public void whenFileNotAvailableOnStorageBucket() throws BlobNotExistsException {
-
+    public void BlobNotExistsException_whenFileNotAvailableOnStorageBucket() {
         Exception exception = assertThrows(BlobNotExistsException.class, () -> {
             avroToBigQueryJobProcessor.executeTasks("NotExistentFile.avro");
         });
-
     }
 }
