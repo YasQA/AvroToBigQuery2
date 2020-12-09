@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,9 +48,32 @@ public class BigQueryDataOperator implements DBDataOperator {
             log.info("Row inserted into '" + tableName + "' table");
             return true;
 
-        } catch (BigQueryException exception) {
-            log.error("Insert operation not performed: " + exception.getMessage());
+        } catch (BigQueryException | NullPointerException exception) {
+            log.error("Insert operation failed: " + exception.getMessage());
             throw new BigQueryRowInsertException(client, exception);
+        }
+    }
+
+    public List<FieldValueList> simpleSelect(String query) {
+        List<FieldValueList> selectResultList = new ArrayList<>();
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            for (FieldValueList row : bigQuery.query(queryConfig).iterateAll()) {
+                selectResultList.add(row);
+            }
+        } catch (BigQueryException | InterruptedException exception) {
+            log.error("SELECT query execution fails: \n" + exception.toString());
+        }
+        return selectResultList;
+    }
+
+    public void simpleDelete(String query) {
+        try {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(query).build();
+            bigQuery.query(queryConfig);
+
+        } catch (BigQueryException | InterruptedException exception) {
+            log.error("DELETE query execution fails: \n" + exception.toString());
         }
     }
 }
